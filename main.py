@@ -83,13 +83,14 @@ class QRCodeWindow(QMainWindow):
         self.error_selector.setCurrentText("Medium")
         self.error_selector.currentTextChanged.connect(self.regenerate_from_settings)
 
-        self.error_info_label = QLabel("ℹ")
+        self.error_info_label = QLabel("i")
         self.error_info_label.setAlignment(Qt.AlignCenter)
         self.error_info_label.setCursor(QCursor(Qt.PointingHandCursor))
-        self.error_info_label.setFixedSize(18, 18)
+        self.error_info_label.setFixedSize(20, 20)
         self.error_info_label.setStyleSheet(
-            "QLabel { color: #607d8b; font-weight: 600; border-radius: 9px; }"
-            "QLabel:hover { color: #1976d2; background: #e3f2fd; }"
+            "QLabel { color: #90a4ae; font-weight: 700; border: 1px solid #78909c; "
+            "border-radius: 10px; }"
+            "QLabel:hover { color: #ffffff; background: #1976d2; border-color: #1976d2; }"
         )
         self.error_info_label.setToolTip(
             "Error correction controls how much damage a QR code can tolerate and still be scanned.\n"
@@ -116,15 +117,21 @@ class QRCodeWindow(QMainWindow):
         )
 
         self.message_label = QLabel("")
+        self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.message_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.message_label.setWordWrap(True)
 
         self.save_png_button = QPushButton("Save as PNG")
         self.save_png_button.clicked.connect(self.save_png)
         self.save_png_button.setEnabled(False)
+        self.save_png_button.setMinimumHeight(34)
+        self.save_png_button.setMinimumWidth(118)
 
         self.save_svg_button = QPushButton("Save as SVG")
         self.save_svg_button.clicked.connect(self.save_svg)
         self.save_svg_button.setEnabled(False)
+        self.save_svg_button.setMinimumHeight(34)
+        self.save_svg_button.setMinimumWidth(118)
 
         self.build_layout()
         self.update_color_buttons()
@@ -132,7 +139,7 @@ class QRCodeWindow(QMainWindow):
     def build_layout(self):
         settings_group = QGroupBox("Settings")
         settings_layout = QVBoxLayout()
-        settings_layout.setSpacing(14)
+        settings_layout.setSpacing(18)
 
         input_group = QGroupBox("Content")
         input_layout = QVBoxLayout()
@@ -146,21 +153,29 @@ class QRCodeWindow(QMainWindow):
         input_layout.addLayout(input_buttons)
         input_group.setLayout(input_layout)
 
+        colors_group = QGroupBox("Colors")
         color_form = QFormLayout()
         color_form.setVerticalSpacing(12)
         color_form.addRow("Foreground", self.foreground_button)
         color_form.addRow("Background", self.background_button)
+        colors_group.setLayout(color_form)
 
-        options_form = QFormLayout()
-        options_form.setVerticalSpacing(12)
-        options_form.addRow("QR size", self.size_selector)
+        size_group = QGroupBox("QR Size")
+        size_layout = QFormLayout()
+        size_layout.setVerticalSpacing(12)
+        size_layout.addRow("QR size", self.size_selector)
+        size_group.setLayout(size_layout)
 
+        error_group = QGroupBox("Error Correction")
+        error_group_layout = QFormLayout()
+        error_group_layout.setVerticalSpacing(12)
         error_layout = QHBoxLayout()
         error_layout.setContentsMargins(0, 0, 0, 0)
-        error_layout.setSpacing(6)
+        error_layout.setSpacing(8)
         error_layout.addWidget(self.error_selector)
         error_layout.addWidget(self.error_info_label)
-        options_form.addRow("Error correction", error_layout)
+        error_group_layout.addRow("Error correction", error_layout)
+        error_group.setLayout(error_group_layout)
 
         logo_buttons = QHBoxLayout()
         logo_buttons.setSpacing(8)
@@ -175,9 +190,10 @@ class QRCodeWindow(QMainWindow):
         logo_group.setLayout(logo_layout)
 
         settings_layout.addWidget(input_group)
-        settings_layout.addLayout(color_form)
-        settings_layout.addLayout(options_form)
+        settings_layout.addWidget(colors_group)
+        settings_layout.addWidget(size_group)
         settings_layout.addWidget(logo_group)
+        settings_layout.addWidget(error_group)
         settings_layout.addStretch()
         settings_group.setLayout(settings_layout)
         settings_group.setMaximumWidth(330)
@@ -185,13 +201,13 @@ class QRCodeWindow(QMainWindow):
         preview_group = QGroupBox("Preview")
         preview_layout = QVBoxLayout()
         preview_layout.addWidget(self.preview_label)
-        preview_layout.addWidget(self.message_label)
 
-        save_layout = QHBoxLayout()
-        save_layout.addStretch()
-        save_layout.addWidget(self.save_png_button)
-        save_layout.addWidget(self.save_svg_button)
-        preview_layout.addLayout(save_layout)
+        preview_footer_layout = QHBoxLayout()
+        preview_footer_layout.setSpacing(10)
+        preview_footer_layout.addWidget(self.message_label, 1)
+        preview_footer_layout.addWidget(self.save_png_button)
+        preview_footer_layout.addWidget(self.save_svg_button)
+        preview_layout.addLayout(preview_footer_layout)
         preview_group.setLayout(preview_layout)
 
         divider = QFrame()
