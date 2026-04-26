@@ -51,6 +51,7 @@ class QRCodeWindow(QMainWindow):
         self.svg_data = None
         self.logo_path = None
         self.foreground_color = QColor("#000000")
+        self.last_non_black_foreground_color = QColor("#333333")
         self.background_color = QColor("#ffffff")
 
         self.setWindowTitle("QR Code Generator")
@@ -320,7 +321,12 @@ class QRCodeWindow(QMainWindow):
         return "\n".join(lines).encode("utf-8")
 
     def choose_foreground_color(self):
-        dialog = QColorDialog(self.foreground_color, self)
+        dialog_color = self.foreground_color
+        if dialog_color.name().lower() == "#000000":
+            # Avoid pure black as the dialog seed so the advanced palette starts with visible value.
+            dialog_color = self.last_non_black_foreground_color
+
+        dialog = QColorDialog(dialog_color, self)
         dialog.setWindowTitle("Choose foreground color")
 
         if dialog.exec() == QDialog.Accepted:
@@ -329,6 +335,8 @@ class QRCodeWindow(QMainWindow):
                 return
 
             self.foreground_color = QColor(selected_color.name())
+            if self.foreground_color.name().lower() != "#000000":
+                self.last_non_black_foreground_color = QColor(self.foreground_color.name())
             self.update_color_buttons()
             self.generate_qr()
 
