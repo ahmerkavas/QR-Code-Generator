@@ -27,10 +27,12 @@ from PySide6.QtWidgets import (
 
 
 SIZE_OPTIONS = {
-    "Small": 6,
-    "Medium": 10,
-    "Large": 14,
+    "Small": 240,
+    "Medium": 360,
+    "Large": 520,
 }
+
+QR_BORDER_MODULES = 4
 
 ERROR_CORRECTION_OPTIONS = {
     "Low": qrcode.constants.ERROR_CORRECT_L,
@@ -55,7 +57,7 @@ class QRCodeWindow(QMainWindow):
 
         self.input_field = QLineEdit()
         self.input_field.setPlaceholderText("Enter text or a URL")
-        self.input_field.textChanged.connect(self.generate_qr)
+        self.input_field.textChanged.connect(self.regenerate_from_settings)
 
         self.generate_button = QPushButton("Generate")
         self.generate_button.clicked.connect(self.generate_qr)
@@ -72,12 +74,12 @@ class QRCodeWindow(QMainWindow):
         self.size_selector = QComboBox()
         self.size_selector.addItems(SIZE_OPTIONS.keys())
         self.size_selector.setCurrentText("Medium")
-        self.size_selector.currentTextChanged.connect(self.regenerate_if_ready)
+        self.size_selector.currentTextChanged.connect(self.regenerate_from_settings)
 
         self.error_selector = QComboBox()
         self.error_selector.addItems(ERROR_CORRECTION_OPTIONS.keys())
         self.error_selector.setCurrentText("Medium")
-        self.error_selector.currentTextChanged.connect(self.regenerate_if_ready)
+        self.error_selector.currentTextChanged.connect(self.regenerate_from_settings)
 
         self.choose_logo_button = QPushButton("Choose logo")
         self.choose_logo_button.clicked.connect(self.choose_logo)
@@ -177,11 +179,20 @@ class QRCodeWindow(QMainWindow):
         self.setCentralWidget(container)
 
     def generate_qr(self):
+        self.rebuild_qr(show_empty_error=True)
+
+    def regenerate_from_settings(self, *_args):
+        self.rebuild_qr(show_empty_error=False)
+
+    def rebuild_qr(self, show_empty_error):
         text = self.input_field.text().strip()
         if not text:
             self.clear_generated_qr()
             self.preview_label.setText("Enter text or a URL to generate a QR code.")
-            self.set_message("Input cannot be empty.", error=True)
+            if show_empty_error:
+                self.set_message("Input cannot be empty.", error=True)
+            else:
+                self.set_message("")
             return
 
         qr = self.create_qr(text)
@@ -191,19 +202,29 @@ class QRCodeWindow(QMainWindow):
         self.set_message("QR code generated.")
         self.set_save_buttons_enabled(True)
 
-    def regenerate_if_ready(self):
-        if self.input_field.text().strip():
-            self.generate_qr()
-
     def create_qr(self, text):
+        target_size = SIZE_OPTIONS[self.size_selector.currentText()]
+        module_count = self.estimate_module_count(text)
+        box_size = max(1, target_size // module_count)
+
         qr = qrcode.QRCode(
             error_correction=ERROR_CORRECTION_OPTIONS[self.error_selector.currentText()],
-            box_size=SIZE_OPTIONS[self.size_selector.currentText()],
-            border=4,
+            box_size=box_size,
+            border=QR_BORDER_MODULES,
         )
         qr.add_data(text)
         qr.make(fit=True)
         return qr
+
+    def estimate_module_count(self, text):
+        qr = qrcode.QRCode(
+            error_correction=ERROR_CORRECTION_OPTIONS[self.error_selector.currentText()],
+            box_size=1,
+            border=QR_BORDER_MODULES,
+        )
+        qr.add_data(text)
+        qr.make(fit=True)
+        return len(qr.get_matrix())
 
     def create_png_image(self, qr):
         image = qr.make_image(
@@ -251,12 +272,16 @@ class QRCodeWindow(QMainWindow):
 
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.getvalue(), "PNG")
-        scaled_pixmap = pixmap.scaled(
-            self.preview_label.size(),
-            Qt.KeepAspectRatio,
-            Qt.SmoothTransformation,
-        )
-        self.preview_label.setPixmap(scaled_pixmap)
+        preview_size = self.preview_label.size()
+
+        if pixmap.width() > preview_size.width() or pixmap.height() > preview_size.height():
+            pixmap = pixmap.scaled(
+                preview_size,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
+
+        self.preview_label.setPixmap(pixmap)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -264,7 +289,7 @@ class QRCodeWindow(QMainWindow):
 
     def create_svg(self, qr):
         matrix = qr.get_matrix()
-        box_size = SIZE_OPTIONS[self.size_selector.currentText()]
+        box_size = qr.box_size
         module_count = len(matrix)
         total_size = module_count * box_size
         foreground = self.foreground_color.name()
@@ -298,14 +323,14 @@ class QRCodeWindow(QMainWindow):
         if color.isValid():
             self.foreground_color = color
             self.update_color_buttons()
-            self.regenerate_if_ready()
+            self.regenerate_from_settings()
 
     def choose_background_color(self):
         color = QColorDialog.getColor(self.background_color, self, "Choose background color")
         if color.isValid():
             self.background_color = color
             self.update_color_buttons()
-            self.regenerate_if_ready()
+            self.regenerate_from_settings()
 
     def update_color_buttons(self):
         self.style_color_button(self.foreground_button, self.foreground_color)
@@ -335,13 +360,13 @@ class QRCodeWindow(QMainWindow):
         self.logo_label.setText(Path(file_path).name)
         self.remove_logo_button.setEnabled(True)
         self.error_selector.setCurrentText("High")
-        self.regenerate_if_ready()
+        self.regenerate_from_settings()
 
     def remove_logo(self):
         self.logo_path = None
         self.logo_label.setText("No logo selected")
         self.remove_logo_button.setEnabled(False)
-        self.regenerate_if_ready()
+        self.regenerate_from_settings()
 
     def save_png(self):
         if self.qr_image is None:
