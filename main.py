@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QPushButton,
+    QDialog,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
@@ -319,11 +320,17 @@ class QRCodeWindow(QMainWindow):
         return "\n".join(lines).encode("utf-8")
 
     def choose_foreground_color(self):
-        color = QColorDialog.getColor(self.foreground_color, self, "Choose foreground color")
-        if color.isValid():
-            self.foreground_color = color
+        dialog = QColorDialog(self.foreground_color, self)
+        dialog.setWindowTitle("Choose foreground color")
+
+        if dialog.exec() == QDialog.Accepted:
+            selected_color = dialog.selectedColor()
+            if not selected_color.isValid():
+                return
+
+            self.foreground_color = QColor(selected_color.name())
             self.update_color_buttons()
-            self.regenerate_from_settings()
+            self.generate_qr()
 
     def choose_background_color(self):
         color = QColorDialog.getColor(self.background_color, self, "Choose background color")
