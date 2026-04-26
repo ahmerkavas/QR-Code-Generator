@@ -2,6 +2,8 @@
 
 A simple PySide6 desktop application for generating QR codes from text or URLs.
 
+Current version: `1.0.0`
+
 ## Features
 
 - Enter text or a URL.
@@ -52,6 +54,8 @@ python build.py
 ```
 
 The script runs PyInstaller with the app name `QRCodeGenerator`. The executable will be created under `dist/`.
+
+If `assets/app.ico` exists, the build script uses it as the Windows executable icon. The application window also loads `assets/app.ico` at runtime when the file is present.
 
 Equivalent manual command:
 

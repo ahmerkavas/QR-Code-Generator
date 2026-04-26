@@ -6,7 +6,7 @@ import qrcode
 import qrcode.constants
 from PIL import Image, ImageColor, ImageOps
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QCursor, QPixmap
+from PySide6.QtGui import QColor, QCursor, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QColorDialog,
@@ -26,6 +26,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+
+APP_NAME = "QR Code Generator"
+APP_VERSION = "1.0.0"
+APP_ICON_PATH = Path("assets/app.ico")
 
 SIZE_OPTIONS = {
     "Small": 240,
@@ -54,7 +58,9 @@ class QRCodeWindow(QMainWindow):
         self.last_non_black_foreground_color = QColor("#333333")
         self.background_color = QColor("#ffffff")
 
-        self.setWindowTitle("QR Code Generator")
+        self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
+        if APP_ICON_PATH.exists():
+            self.setWindowIcon(QIcon(str(APP_ICON_PATH)))
         self.setMinimumSize(860, 560)
 
         self.input_field = QLineEdit()
