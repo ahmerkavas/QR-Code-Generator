@@ -6,7 +6,7 @@ import qrcode
 import qrcode.constants
 from PIL import Image, ImageColor, ImageOps
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtGui import QColor, QCursor, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QColorDialog,
@@ -83,7 +83,14 @@ class QRCodeWindow(QMainWindow):
         self.error_selector.setCurrentText("Medium")
         self.error_selector.currentTextChanged.connect(self.regenerate_from_settings)
 
-        self.error_info_label = QLabel("(i)")
+        self.error_info_label = QLabel("ℹ")
+        self.error_info_label.setAlignment(Qt.AlignCenter)
+        self.error_info_label.setCursor(QCursor(Qt.PointingHandCursor))
+        self.error_info_label.setFixedSize(18, 18)
+        self.error_info_label.setStyleSheet(
+            "QLabel { color: #607d8b; font-weight: 600; border-radius: 9px; }"
+            "QLabel:hover { color: #1976d2; background: #e3f2fd; }"
+        )
         self.error_info_label.setToolTip(
             "Error correction controls how much damage a QR code can tolerate and still be scanned.\n"
             "Higher levels make the QR more robust but denser.\n"
@@ -143,10 +150,16 @@ class QRCodeWindow(QMainWindow):
         options_form = QFormLayout()
         options_form.addRow("QR size", self.size_selector)
 
-        error_layout = QHBoxLayout()
-        error_layout.addWidget(self.error_selector)
-        error_layout.addWidget(self.error_info_label)
-        options_form.addRow("Error correction", error_layout)
+        error_label_layout = QHBoxLayout()
+        error_label_layout.setContentsMargins(0, 0, 0, 0)
+        error_label_layout.setSpacing(4)
+        error_label_layout.addWidget(QLabel("Error correction"))
+        error_label_layout.addWidget(self.error_info_label)
+        error_label_layout.addStretch()
+
+        error_label_widget = QWidget()
+        error_label_widget.setLayout(error_label_layout)
+        options_form.addRow(error_label_widget, self.error_selector)
 
         logo_buttons = QHBoxLayout()
         logo_buttons.addWidget(self.choose_logo_button)
