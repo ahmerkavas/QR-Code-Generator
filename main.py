@@ -83,6 +83,13 @@ class QRCodeWindow(QMainWindow):
         self.error_selector.setCurrentText("Medium")
         self.error_selector.currentTextChanged.connect(self.regenerate_from_settings)
 
+        self.error_info_label = QLabel("(i)")
+        self.error_info_label.setToolTip(
+            "Error correction controls how much damage a QR code can tolerate and still be scanned.\n"
+            "Higher levels make the QR more robust but denser.\n"
+            "Use High when adding a logo."
+        )
+
         self.choose_logo_button = QPushButton("Choose logo")
         self.choose_logo_button.clicked.connect(self.choose_logo)
 
@@ -135,7 +142,11 @@ class QRCodeWindow(QMainWindow):
 
         options_form = QFormLayout()
         options_form.addRow("QR size", self.size_selector)
-        options_form.addRow("Error correction", self.error_selector)
+
+        error_layout = QHBoxLayout()
+        error_layout.addWidget(self.error_selector)
+        error_layout.addWidget(self.error_info_label)
+        options_form.addRow("Error correction", error_layout)
 
         logo_buttons = QHBoxLayout()
         logo_buttons.addWidget(self.choose_logo_button)
