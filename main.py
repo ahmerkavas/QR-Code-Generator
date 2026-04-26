@@ -132,41 +132,44 @@ class QRCodeWindow(QMainWindow):
     def build_layout(self):
         settings_group = QGroupBox("Settings")
         settings_layout = QVBoxLayout()
+        settings_layout.setSpacing(14)
 
         input_group = QGroupBox("Content")
         input_layout = QVBoxLayout()
+        input_layout.setSpacing(10)
         input_layout.addWidget(self.input_field)
 
         input_buttons = QHBoxLayout()
+        input_buttons.setSpacing(8)
         input_buttons.addWidget(self.generate_button)
         input_buttons.addWidget(self.clear_button)
         input_layout.addLayout(input_buttons)
         input_group.setLayout(input_layout)
 
         color_form = QFormLayout()
+        color_form.setVerticalSpacing(12)
         color_form.addRow("Foreground", self.foreground_button)
         color_form.addRow("Background", self.background_button)
 
         options_form = QFormLayout()
+        options_form.setVerticalSpacing(12)
         options_form.addRow("QR size", self.size_selector)
 
-        error_label_layout = QHBoxLayout()
-        error_label_layout.setContentsMargins(0, 0, 0, 0)
-        error_label_layout.setSpacing(4)
-        error_label_layout.addWidget(QLabel("Error correction"))
-        error_label_layout.addWidget(self.error_info_label)
-        error_label_layout.addStretch()
-
-        error_label_widget = QWidget()
-        error_label_widget.setLayout(error_label_layout)
-        options_form.addRow(error_label_widget, self.error_selector)
+        error_layout = QHBoxLayout()
+        error_layout.setContentsMargins(0, 0, 0, 0)
+        error_layout.setSpacing(6)
+        error_layout.addWidget(self.error_selector)
+        error_layout.addWidget(self.error_info_label)
+        options_form.addRow("Error correction", error_layout)
 
         logo_buttons = QHBoxLayout()
+        logo_buttons.setSpacing(8)
         logo_buttons.addWidget(self.choose_logo_button)
         logo_buttons.addWidget(self.remove_logo_button)
 
         logo_group = QGroupBox("Logo")
         logo_layout = QVBoxLayout()
+        logo_layout.setSpacing(10)
         logo_layout.addLayout(logo_buttons)
         logo_layout.addWidget(self.logo_label)
         logo_group.setLayout(logo_layout)
@@ -481,7 +484,9 @@ class QRCodeWindow(QMainWindow):
 
     def set_message(self, message, error=False):
         color = "#b00020" if error else "#1b5e20"
-        self.message_label.setStyleSheet(f"QLabel {{ color: {color}; }}")
+        self.message_label.setStyleSheet(
+            f"QLabel {{ color: {color}; font-size: 15px; font-weight: 600; }}"
+        )
         self.message_label.setText(message)
 
 
