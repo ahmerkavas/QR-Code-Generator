@@ -65,6 +65,15 @@ Equivalent manual command:
 pyinstaller --onefile --windowed --name QRCodeGenerator main.py
 ```
 
+## Installer
+
+Build a Windows installer with Inno Setup:
+
+1. Run `python build.py`.
+2. Open `installer/QRCodeGenerator.iss` with Inno Setup.
+3. Click `Build > Compile`.
+4. Find `QRCodeGeneratorSetup.exe` in `installer/Output`.
+
 ## Notes
 
 The app does not overwrite `qrcode.svg` automatically. QR files are written only when you choose a save location from the Save buttons.
