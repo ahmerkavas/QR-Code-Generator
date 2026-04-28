@@ -4,6 +4,10 @@ A simple PySide6 desktop application for generating QR codes from text or URLs.
 
 Version: `1.0.0`
 
+## Preview
+
+![QR Code Generator](assets/screenshot.png)
+
 ## Features
 
 - Enter text or a URL.
