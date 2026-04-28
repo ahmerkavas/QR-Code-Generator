@@ -57,6 +57,8 @@ The script runs PyInstaller with the app name `QRCodeGenerator`. The executable 
 
 If `assets/app.ico` exists, the build script uses it as the Windows executable icon. The application window also loads `assets/app.ico` at runtime when the file is present.
 
+The source icon is available at `assets/app.svg`. Convert it to `assets/app.ico` when you want the app window and PyInstaller build to use the icon.
+
 Equivalent manual command:
 
 ```powershell
