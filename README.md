@@ -8,6 +8,11 @@ Version: `1.0.0`
 
 ![QR Code Generator](assets/screenshot.png)
 
+## Download
+
+- Windows Installer: https://github.com/ahmerkavas/QR-Code-Generator/releases/download/v1.0.0/QRCodeGenerator-1.0.0-setup.exe
+- Portable EXE: https://github.com/ahmerkavas/QR-Code-Generator/releases/download/v1.0.0/QRCodeGenerator-1.0.0.exe
+
 ## Features
 
 - Enter text or a URL.
