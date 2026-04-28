@@ -31,6 +31,7 @@ APP_NAME = "QR Code Generator"
 APP_VERSION = "1.0.0"
 APP_ICON_PATH = Path("assets/app.ico")
 
+# The UI uses friendly size labels, while generation uses target pixel dimensions.
 SIZE_OPTIONS = {
     "Small": 240,
     "Medium": 360,
@@ -39,6 +40,7 @@ SIZE_OPTIONS = {
 
 QR_BORDER_MODULES = 4
 
+# Map user-facing error correction names to qrcode's constants.
 ERROR_CORRECTION_OPTIONS = {
     "Low": qrcode.constants.ERROR_CORRECT_L,
     "Medium": qrcode.constants.ERROR_CORRECT_M,
@@ -48,6 +50,7 @@ ERROR_CORRECTION_OPTIONS = {
 
 
 def resource_path(relative_path):
+    # PyInstaller extracts bundled files to sys._MEIPASS; development uses the repo path.
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         base_path = Path(sys._MEIPASS)
     else:
@@ -157,6 +160,7 @@ class QRCodeWindow(QMainWindow):
         self.update_color_buttons()
 
     def build_layout(self):
+        # The left panel groups settings; the right panel keeps preview/export controls together.
         settings_group = QGroupBox("Settings")
         settings_layout = QVBoxLayout()
         settings_layout.setSpacing(18)
@@ -251,6 +255,7 @@ class QRCodeWindow(QMainWindow):
         self.rebuild_qr(show_empty_error=False)
 
     def rebuild_qr(self, show_empty_error):
+        # All input and settings changes flow through this method so preview/export stay in sync.
         text = self.input_field.text().strip()
         if not text:
             self.clear_generated_qr()
@@ -269,6 +274,7 @@ class QRCodeWindow(QMainWindow):
         self.set_save_buttons_enabled(True)
 
     def create_qr(self, text):
+        # Estimate the matrix first so the selected size changes the generated image canvas.
         target_size = SIZE_OPTIONS[self.size_selector.currentText()]
         module_count = self.estimate_module_count(text)
         box_size = max(1, target_size // module_count)
@@ -283,6 +289,7 @@ class QRCodeWindow(QMainWindow):
         return qr
 
     def estimate_module_count(self, text):
+        # Error correction can change QR density, so size calculation must use current settings.
         qr = qrcode.QRCode(
             error_correction=ERROR_CORRECTION_OPTIONS[self.error_selector.currentText()],
             box_size=1,
@@ -293,6 +300,7 @@ class QRCodeWindow(QMainWindow):
         return len(qr.get_matrix())
 
     def create_png_image(self, qr):
+        # PNG output includes colors and the optional centered logo.
         image = qr.make_image(
             fill_color=self.foreground_color.name(),
             back_color=self.background_color.name(),
@@ -307,6 +315,7 @@ class QRCodeWindow(QMainWindow):
         return image.convert("RGB")
 
     def add_logo(self, image):
+        # Keep the logo compact and pad it with the QR background color for scan reliability.
         logo = Image.open(self.logo_path).convert("RGBA")
         max_logo_size = max(36, int(min(image.size) * 0.22))
         logo = ImageOps.contain(
@@ -333,6 +342,7 @@ class QRCodeWindow(QMainWindow):
         if self.qr_image is None:
             return
 
+        # Load the generated PNG bytes into Qt so the preview matches exported PNG output.
         buffer = BytesIO()
         self.qr_image.save(buffer, "PNG")
 
@@ -354,6 +364,7 @@ class QRCodeWindow(QMainWindow):
         self.update_preview()
 
     def create_svg(self, qr):
+        # SVG export mirrors the QR modules and colors, but intentionally excludes embedded logos.
         matrix = qr.get_matrix()
         box_size = qr.box_size
         module_count = len(matrix)
@@ -526,9 +537,9 @@ class QRCodeWindow(QMainWindow):
         )
         self.message_label.setText(message)
 
-
 def main():
     app = QApplication(sys.argv)
+    # Set the icon on both QApplication and the window for development and packaged builds.
     app_icon_path = resource_path(APP_ICON_PATH)
     app_icon = QIcon(str(app_icon_path)) if app_icon_path.exists() else QIcon()
     if not app_icon.isNull():

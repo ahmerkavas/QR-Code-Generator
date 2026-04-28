@@ -2,7 +2,7 @@
 
 A simple PySide6 desktop application for generating QR codes from text or URLs.
 
-Current version: `1.0.0`
+Version: `1.0.0`
 
 ## Features
 
@@ -47,17 +47,17 @@ python main.py
 
 ## Build
 
-Install the dependencies first, then build a Windows executable with the included build script:
+Install the dependencies first, then build the Windows executable with the included build script:
 
 ```powershell
 python build.py
 ```
 
-The script runs PyInstaller with the app name `QRCodeGenerator`. The executable will be created under `dist/`.
+The script runs PyInstaller with the app name `QRCodeGenerator`. The executable is created under `dist/`.
 
 If `assets/app.ico` exists, the build script uses it as the Windows executable icon. The application window also loads `assets/app.ico` at runtime when the file is present.
 
-The source icon is available at `assets/app.svg`. Convert it to `assets/app.ico` when you want the app window and PyInstaller build to use the icon.
+The source icon is available at `assets/app.svg`. Convert it to `assets/app.ico` when you want the app window, executable, and installer to use the icon.
 
 Equivalent manual command:
 
