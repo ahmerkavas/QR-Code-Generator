@@ -147,6 +147,12 @@ class QRCodeWindow(QMainWindow):
         self.save_svg_button.setMinimumHeight(34)
         self.save_svg_button.setMinimumWidth(118)
 
+        self.export_note_label = QLabel(
+            "Note: SVG export does not include logos. Use PNG for QR codes with logos."
+        )
+        self.export_note_label.setWordWrap(True)
+        self.export_note_label.setStyleSheet("QLabel { color: #78909c; font-size: 11px; }")
+
         self.build_layout()
         self.update_color_buttons()
 
@@ -222,6 +228,7 @@ class QRCodeWindow(QMainWindow):
         preview_footer_layout.addWidget(self.save_png_button)
         preview_footer_layout.addWidget(self.save_svg_button)
         preview_layout.addLayout(preview_footer_layout)
+        preview_layout.addWidget(self.export_note_label)
         preview_group.setLayout(preview_layout)
 
         divider = QFrame()
