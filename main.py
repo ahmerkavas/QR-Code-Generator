@@ -47,8 +47,16 @@ ERROR_CORRECTION_OPTIONS = {
 }
 
 
+def resource_path(relative_path):
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(__file__).resolve().parent
+    return base_path / relative_path
+
+
 class QRCodeWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app_icon=None):
         super().__init__()
 
         self.qr_image = None
@@ -59,8 +67,8 @@ class QRCodeWindow(QMainWindow):
         self.background_color = QColor("#ffffff")
 
         self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
-        if APP_ICON_PATH.exists():
-            self.setWindowIcon(QIcon(str(APP_ICON_PATH)))
+        if app_icon is not None and not app_icon.isNull():
+            self.setWindowIcon(app_icon)
         self.setMinimumSize(860, 560)
 
         self.input_field = QLineEdit()
@@ -514,7 +522,12 @@ class QRCodeWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    window = QRCodeWindow()
+    app_icon_path = resource_path(APP_ICON_PATH)
+    app_icon = QIcon(str(app_icon_path)) if app_icon_path.exists() else QIcon()
+    if not app_icon.isNull():
+        app.setWindowIcon(app_icon)
+
+    window = QRCodeWindow(app_icon)
     window.show()
     sys.exit(app.exec())
 
