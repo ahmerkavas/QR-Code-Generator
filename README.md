@@ -1,3 +1,8 @@
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+![Built With](https://img.shields.io/badge/built%20with-PySide6-purple)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # QR Code Generator
 
 A simple PySide6 desktop application for generating QR codes from text or URLs.
